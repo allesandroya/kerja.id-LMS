@@ -402,45 +402,179 @@ function Catalog({ go, courses }) {
   </>;
 }
 
-/* ════════════════ LANDING (Sales page) ════════════════ */
+/* ════════════════ LANDING (Sales page — Figma-adapted layout) ════════════════ */
 function Landing({ go, course, onBuy, enrolled }) {
   if (!course) return <Sec><p style={{ paddingTop: 80, textAlign: "center", color: C.muted }}>Course tidak ditemukan. <a onClick={() => go("catalog")} style={{ color: C.accentInk, cursor: "pointer" }}>Kembali ke katalog</a></p></Sec>;
+
+  // Figma slate palette (used for Figma-adapted sections only)
+  const S = { ink: "#0F172A", inkSoft: "#1E293B", body: "#334155", muted: "#64748B", line: "#CBD5E1", wash: "#F8FAFC", dark: "#0F172A", darkCard: "#1E293B", darkLine: "#475569" };
+  const ACC = { green: "#22C55E", greenInk: "#15803D", greenWash: "#DCFCE7", blue: "#3B82F6", blueWash: "#DBEAFE", orange: "#F97316", orangeWash: "#FFEDD5", orangeSkin: "#FED7AA", blueSkin: "#BFDBFE" };
+
+  const isExcel = course.title.toLowerCase().includes("excel");
+  const heroHeadline = isExcel
+    ? "82% Pekerjaan Membutuhkan Skill Microsoft Excel"
+    : `Kuasai ${course.title}, Siap EXCEL-erate Karirmu!`;
+  const heroSub = `Apakah kamu tahu bahwa mahir ${course.title.replace(" Mastery","").replace(" Pro","").replace(" Fundamentals","").replace(" Analytics","")} bisa menjadi aset besar untuk karir kamu?`;
+  const heroBody = isExcel
+    ? "Baik kamu mencari pekerjaan, ingin meningkatkan keterampilan, mengelola bisnis, atau menjadi freelancer, Excel sangat berguna! Di course ini, kamu juga akan memahami konsep data, hubungan antar data, dan visualisasi data."
+    : `${course.desc}. Dibangun untuk fresh graduate, career switcher, hingga profesional yang ingin upgrade skill — dari dasar hingga siap pakai di industri.`;
+
+  const whyCards = [
+    { icon: I.chart, color: ACC.greenInk, bg: ACC.greenWash, title: "Materi Padat & Terus Diperbarui", body: "Konten yang ringkas dan selalu up-to-date." },
+    { icon: I.settings, color: ACC.blue, bg: ACC.blueWash, title: "Automasi Data", body: "Pelajari cara menghemat waktu dan bekerja lebih cerdas dengan automasi data." },
+    { icon: I.play, color: ACC.orange, bg: ACC.orangeWash, title: "Video Per Sesi", body: "Materi diajarkan melalui video dengan akses seumur hidup." },
+    { icon: I.users, color: ACC.greenInk, bg: ACC.greenWash, title: "Grup Diskusi WA", body: "Bergabunglah dengan grup WA untuk diskusi, berbagi, dan tanya jawab." },
+  ];
+
+  const ebookPoints = [
+    { title: "Belajar Mulai Dari Nol", body: "Kuasai dasar-dasar, termasuk memasukkan data, membuat rumus, dan memformat spreadsheet." },
+    { title: "Data Visualization Mastery", body: "Buat visualisasi data yang menarik dan informatif dengan berbagai grafik, bagan, dan tips efektif." },
+    { title: "Power Query & Power Pivot Mastery", body: "Kuasai dua alat canggih ini untuk menganalisis data dengan mudah dan cepat, termasuk impor, pembersihan data, dan pembuatan model data kompleks." },
+  ];
+
+  // Trim "Microsoft" prefix and trailing modifier words so audience copy reads naturally
+  // "Microsoft Excel Mastery" → "Excel", "Power BI Analytics" → "Power BI", "Looker Studio" → "Looker Studio"
+  const shortName = course.title
+    .replace(/^Microsoft\s+/i, "")
+    .replace(/\s+(Mastery|Pro|Fundamentals|Analytics)$/i, "")
+    .trim();
+  const audiencePoints = [
+    `Ingin meningkatkan peluang kerja dengan menguasai ${shortName}.`,
+    `Berambisi untuk meningkatkan skill ${shortName} di kantor dan menjadi lebih produktif.`,
+    `Memiliki bisnis dan ingin memantau performa bisnis dengan lebih efektif menggunakan ${shortName}.`,
+    `Ingin menjadi freelancer handal dan menghasilkan cuan dari keahlian ${shortName}.`,
+  ];
+
+  const scrollToWhy = () => document.getElementById("why-section")?.scrollIntoView({ behavior: "smooth" });
+
   return <>
-    <section style={{ minHeight: "92vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "120px 24px 60px", textAlign: "center", position: "relative", overflow: "hidden", background: C.pastelHero }}>
-      <div style={{ position: "absolute", top: "12%", left: "10%", width: 60, height: 60, borderRadius: 16, background: "linear-gradient(135deg,#F5C4A0,#F0A580)", boxShadow: "0 16px 32px rgba(245,165,128,0.3)", transform: "rotate(-15deg)", opacity: 0.65 }} />
-      <div style={{ position: "absolute", bottom: "20%", right: "12%", width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg,#F5D4B5,#EBB78F)", boxShadow: "0 16px 32px rgba(235,183,143,0.3)", opacity: 0.65 }} />
-      <Badge color={C.green}>Discount Launch 90% Terbatas</Badge>
-      <h1 style={{ fontFamily: F.head, fontSize: "clamp(28px,5vw,52px)", fontWeight: 800, color: C.text, lineHeight: 1.1, letterSpacing: "-0.04em", maxWidth: 760, margin: "24px 0 16px" }}>
-        {course.title.includes("Excel") ? <>Belajar Excel dari <Hl>NOL</Hl> ke Master,<br/>Siap EXCEL-erate Karirmu!</> : <>Kuasai <Hl>{course.title}</Hl><br/>dengan cara yang bener.</>}
-      </h1>
-      <p style={{ fontFamily: F.body, fontSize: 16, color: C.muted, maxWidth: 540, margin: "0 0 32px", lineHeight: 1.65 }}>{course.desc} · {course.modules} modul · {course.hours} jam video</p>
-      <div style={{ display: "flex", gap: 14 }}>
-        {enrolled ? (
-          <Btn primary onClick={() => go("lms", { courseId: course.id })}>Lanjut Belajar {I.arrow}</Btn>
-        ) : (
-          <Btn primary onClick={onBuy}>Daftar Sekarang {I.arrow}</Btn>
-        )}
-        <Btn>Kenapa Pilih Course Ini</Btn>
-      </div>
-      <div style={{ marginTop: 56 }}>
-        <p style={{ fontFamily: F.body, fontSize: 12, color: C.dim, marginBottom: 16 }}>Mentor berpengalaman yang bekerja sama dengan:</p>
-        <div style={{ display: "flex", gap: 32, justifyContent: "center", flexWrap: "wrap", opacity: 0.45 }}>
-          {PARTNERS.map(p => <span key={p} style={{ fontFamily: F.head, fontSize: 14, fontWeight: 600, color: C.muted }}>{p}</span>)}
+    {/* ═══ HERO — pastel gradient + floating 3D boxes ═══ */}
+    <section style={{ minHeight: 660, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "120px 24px 72px", textAlign: "center", position: "relative", overflow: "hidden", background: C.pastelHero }}>
+      {/* Floating decorative boxes — echoes Figma's 3D orange cubes */}
+      <div style={{ position: "absolute", top: "14%", left: "8%", width: 92, height: 92, borderRadius: 18, background: "linear-gradient(135deg,#F5C4A0,#E89968)", boxShadow: "0 24px 48px rgba(232,153,104,0.35), inset 0 2px 0 rgba(255,255,255,0.4)", transform: "rotate(-15deg)", opacity: 0.9, zIndex: 0 }} />
+      <div style={{ position: "absolute", top: "10%", right: "14%", width: 68, height: 68, borderRadius: 14, background: "linear-gradient(135deg,#FFE0C7,#F4B487)", boxShadow: "0 18px 36px rgba(244,180,135,0.35), inset 0 2px 0 rgba(255,255,255,0.4)", transform: "rotate(18deg)", opacity: 0.85, zIndex: 0 }} />
+      <div style={{ position: "absolute", bottom: "18%", right: "9%", width: 76, height: 76, borderRadius: 18, background: "linear-gradient(135deg,#FFE8D4,#F5C4A0)", boxShadow: "0 22px 40px rgba(245,196,160,0.35), inset 0 2px 0 rgba(255,255,255,0.4)", transform: "rotate(-8deg)", opacity: 0.85, zIndex: 0 }} />
+      <div style={{ position: "absolute", bottom: "22%", left: "11%", width: 60, height: 60, borderRadius: "50%", background: "linear-gradient(135deg,#FFE8D4,#F5C4A0)", boxShadow: "0 16px 32px rgba(245,196,160,0.3)", opacity: 0.8, zIndex: 0 }} />
+
+      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <Badge color={C.green}>Discount Launch 90% Terbatas</Badge>
+        <h1 style={{ fontFamily: F.head, fontSize: "clamp(34px,5.5vw,60px)", fontWeight: 800, color: S.ink, lineHeight: 1.15, letterSpacing: "-0.035em", maxWidth: 900, margin: "24px 0 20px" }}>
+          {heroHeadline}
+        </h1>
+        <p style={{ fontFamily: F.head, fontSize: "clamp(16px,1.7vw,21px)", fontWeight: 600, color: S.ink, lineHeight: 1.3, maxWidth: 760, margin: "0 0 16px" }}>
+          {heroSub}
+        </p>
+        <p style={{ fontFamily: F.body, fontSize: "clamp(14px,1.4vw,17px)", color: S.inkSoft, maxWidth: 760, margin: "0 0 36px", lineHeight: 1.6 }}>
+          {heroBody}
+        </p>
+
+        {/* Pill CTAs — Figma shape, KERJA.ID neon accent */}
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+          {enrolled ? (
+            <button onClick={() => go("lms", { courseId: course.id })} style={{ background: C.accent, color: C.onAccent, border: "none", padding: "18px 40px", borderRadius: 100, fontFamily: F.head, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, boxShadow: "0 10px 28px rgba(200,255,0,0.4)" }}>
+              Lanjut Belajar {I.arrow}
+            </button>
+          ) : (
+            <button onClick={onBuy} style={{ background: C.accent, color: C.onAccent, border: "none", padding: "18px 40px", borderRadius: 100, fontFamily: F.head, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, boxShadow: "0 10px 28px rgba(200,255,0,0.4)" }}>
+              Mulai Sekarang {I.arrow}
+            </button>
+          )}
+          <button onClick={scrollToWhy} style={{ background: "#FFFFFF", color: S.ink, border: `1.5px solid ${S.ink}`, padding: "16px 38px", borderRadius: 100, fontFamily: F.head, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>
+            Kenapa Pilih Course Ini?
+          </button>
+        </div>
+
+        {/* Partners */}
+        <div style={{ marginTop: 56 }}>
+          <p style={{ fontFamily: F.body, fontSize: 12, color: C.dim, marginBottom: 16 }}>Mentor berpengalaman yang bekerja sama dengan:</p>
+          <div style={{ display: "flex", gap: 32, justifyContent: "center", flexWrap: "wrap", opacity: 0.45 }}>
+            {PARTNERS.map(p => <span key={p} style={{ fontFamily: F.head, fontSize: 14, fontWeight: 600, color: C.muted }}>{p}</span>)}
+          </div>
         </div>
       </div>
     </section>
-    <Sec>
-      <STitle title="Apa aja yang dipelajari disini?" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 18 }}>
-        {[["📊","Core Concepts","Belajar dari dasar hingga mahir, serta memahami teknik yang dipakai di industri."],["⚡","Automasi","Tinggalkan pekerjaan manual dan mulai otomatisasi untuk menghemat waktu."],["📈","Dashboard","Monitoring performa dengan visualisasi interaktif."]].map(([ic,t,d],i) => (
-          <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 28 }}>
-            <div style={{ fontSize: 32, marginBottom: 14 }}>{ic}</div>
-            <h3 style={{ fontFamily: F.head, fontSize: 17, fontWeight: 600, color: C.text, margin: "0 0 8px" }}>{t}</h3>
-            <p style={{ fontFamily: F.body, fontSize: 13, color: C.muted, lineHeight: 1.6, margin: 0 }}>{d}</p>
-          </div>
-        ))}
+
+    {/* ═══ KENAPA PILIH COURSE INI? — 4 feature cards ═══ */}
+    <section id="why-section" style={{ background: "linear-gradient(180deg,#F1F5F9 0%,#E2E8F0 100%)", padding: "90px 24px", scrollMarginTop: 80 }}>
+      <div style={{ maxWidth: 1246, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <h2 style={{ fontFamily: F.head, fontSize: "clamp(30px,4vw,48px)", fontWeight: 800, color: S.ink, letterSpacing: "-0.03em", lineHeight: 1.2, margin: "0 0 12px" }}>
+            Kenapa Kamu Harus Pilih Course Ini?
+          </h2>
+          <p style={{ fontFamily: F.body, fontSize: "clamp(14px,1.4vw,18px)", color: S.inkSoft, lineHeight: 1.5, maxWidth: 820, margin: "0 auto" }}>
+            Bukan sekadar video tutorial. Kamu dapat struktur, studi kasus, dan akses selamanya — semua yang dibutuhkan untuk benar-benar menguasai skill ini.
+          </p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 20 }}>
+          {whyCards.map((card, i) => (
+            <div key={i} style={{ background: "#FFFFFF", border: `1px solid ${S.line}`, borderRadius: 24, padding: "30px 20px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 64, height: 64, borderRadius: "50%", background: card.bg, color: card.color, display: "flex", alignItems: "center", justifyContent: "center", transform: "scale(1.3)" }}>
+                {card.icon}
+              </div>
+              <h3 style={{ fontFamily: F.head, fontSize: 18, fontWeight: 600, color: S.ink, lineHeight: 1.3, margin: "6px 0 0" }}>{card.title}</h3>
+              <p style={{ fontFamily: F.body, fontSize: 14, color: S.body, lineHeight: 1.5, margin: 0 }}>{card.body}</p>
+            </div>
+          ))}
+        </div>
       </div>
-    </Sec>
+    </section>
+
+    {/* ═══ LEBIH DARI SEKEDAR COURSE / E-BOOK GRATIS ═══ */}
+    <section style={{ background: "#FFFFFF", padding: "90px 24px" }}>
+      <div style={{ maxWidth: 1246, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(400px,1fr))", gap: 40, alignItems: "center" }}>
+        <div>
+          <h2 style={{ fontFamily: F.head, fontSize: "clamp(28px,3.5vw,44px)", fontWeight: 800, color: S.ink, letterSpacing: "-0.03em", lineHeight: 1.2, margin: "0 0 14px" }}>
+            Lebih dari Sekedar Course
+          </h2>
+          <p style={{ fontFamily: F.body, fontSize: "clamp(14px,1.4vw,18px)", color: S.body, lineHeight: 1.55, margin: "0 0 32px" }}>
+            Dapatkan 3 e-book gratis sebagai panduan lengkap — mulai dari dasar hingga advanced — langsung setelah kamu daftar.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {ebookPoints.map((p, i) => (
+              <div key={i} style={{ background: S.wash, border: `1px solid ${S.line}`, borderRadius: 16, padding: 20, display: "flex", gap: 16, alignItems: "flex-start" }}>
+                <div style={{ flexShrink: 0, width: 32, height: 32, borderRadius: "50%", background: ACC.greenWash, color: ACC.greenInk, display: "flex", alignItems: "center", justifyContent: "center" }}>{I.check}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: F.head, fontSize: 17, fontWeight: 600, color: S.ink, marginBottom: 4 }}>{p.title}</div>
+                  <div style={{ fontFamily: F.body, fontSize: 14, color: S.body, lineHeight: 1.5 }}>{p.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Illustration: 3-stacked books (CSS only) */}
+        <div style={{ background: ACC.orangeSkin, borderRadius: 24, minHeight: 480, position: "relative", overflow: "hidden" }}>
+          <BookShape left="14%" top="16%" w={210} h={270} grad="linear-gradient(160deg,#86EFAC,#22C55E)" spine="#15803D" rotate={-18} shadow="rgba(21,128,61,0.4)" />
+          <BookShape left="32%" top="22%" w={210} h={270} grad="linear-gradient(160deg,#93C5FD,#3B82F6)" spine="#1E40AF" rotate={12} shadow="rgba(30,58,138,0.4)" />
+          <BookShape left="50%" top="28%" w={210} h={270} grad="linear-gradient(160deg,#FED7AA,#F97316)" spine="#9A3412" rotate={-6} shadow="rgba(124,45,18,0.4)" />
+        </div>
+      </div>
+    </section>
+
+    {/* ═══ UNTUK SIAPA COURSE INI? — dark slate band with dot pattern ═══ */}
+    <section style={{ background: S.dark, padding: "90px 24px", position: "relative", backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.05) 1.2px,transparent 1.2px)", backgroundSize: "32px 32px" }}>
+      <div style={{ maxWidth: 1246, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(400px,1fr))", gap: 40, alignItems: "center" }}>
+        {/* Q-mark illustration */}
+        <div style={{ background: ACC.blueSkin, borderRadius: 24, minHeight: 480, position: "relative", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: "14%", right: "14%", fontFamily: F.head, fontSize: 130, fontWeight: 800, color: ACC.blue, opacity: 0.45, transform: "rotate(15deg)", lineHeight: 1 }}>?</div>
+          <div style={{ position: "absolute", bottom: "18%", left: "10%", fontFamily: F.head, fontSize: 90, fontWeight: 800, color: ACC.blue, opacity: 0.3, transform: "rotate(-12deg)", lineHeight: 1 }}>?</div>
+          <div style={{ fontFamily: F.head, fontSize: 300, fontWeight: 900, color: "#FFFFFF", lineHeight: 1, textShadow: "0 16px 48px rgba(59,130,246,0.55)", letterSpacing: "-0.05em" }}>?</div>
+        </div>
+        <div>
+          <h2 style={{ fontFamily: F.head, fontSize: "clamp(28px,3.5vw,44px)", fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.03em", lineHeight: 1.2, margin: "0 0 32px" }}>
+            Untuk Siapa Course ini dibuat?
+          </h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {audiencePoints.map((p, i) => (
+              <div key={i} style={{ background: S.darkCard, border: `1px solid ${S.darkLine}`, borderRadius: 16, padding: 20, fontFamily: F.body, fontSize: 16, color: "#FFFFFF", lineHeight: 1.5 }}>
+                {p}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* ═══ ISI COURSE — lesson list ═══ */}
     <Sec>
       <STitle title="Isi Course" />
       <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", maxWidth: 640, margin: "0 auto" }}>
@@ -458,6 +592,8 @@ function Landing({ go, course, onBuy, enrolled }) {
         )}
       </div>
     </Sec>
+
+    {/* ═══ PRICE CARD — dark + neon (KERJA.ID signature) ═══ */}
     <Sec>
       <div style={{ background: C.dark, borderRadius: 28, padding: "48px 40px", textAlign: "center", position: "relative", overflow: "hidden", boxShadow: C.shadowLg }}>
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at top, rgba(200,255,0,0.18), transparent 55%)", pointerEvents: "none" }} />
@@ -477,6 +613,16 @@ function Landing({ go, course, onBuy, enrolled }) {
       </div>
     </Sec>
   </>;
+}
+
+// Small CSS book illustration for the E-Book Gratis section
+function BookShape({ left, top, w, h, grad, spine, rotate, shadow }) {
+  return (
+    <div style={{ position: "absolute", left, top, width: w, height: h, borderRadius: 18, background: grad, boxShadow: `0 24px 56px ${shadow}, inset 0 2px 0 rgba(255,255,255,0.3)`, transform: `rotate(${rotate}deg)` }}>
+      <div style={{ position: "absolute", top: 18, left: "50%", transform: "translateX(-50%)", width: 32, height: 62, background: spine, borderRadius: "0 0 6px 6px" }} />
+      <div style={{ position: "absolute", inset: 12, border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 10, pointerEvents: "none" }} />
+    </div>
+  );
 }
 
 /* ════════════════ LOGIN ════════════════ */
