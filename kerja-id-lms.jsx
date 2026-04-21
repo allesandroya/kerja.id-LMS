@@ -291,79 +291,163 @@ function Navbar({ route, go, user, onLogout }) {
 
 /* ════════════════ HOME ════════════════ */
 function Home({ go, courses }) {
+  // Figma slate palette — shared with Landing for consistency
+  const S = { ink: "#0F172A", inkSoft: "#1E293B", body: "#334155", muted: "#64748B", line: "#CBD5E1", wash: "#F8FAFC" };
+  const ACC = { green: "#22C55E", greenInk: "#15803D", greenWash: "#DCFCE7", blue: "#3B82F6", blueWash: "#DBEAFE", orange: "#F97316", orangeWash: "#FFEDD5" };
+
+  const whyCards = [
+    { icon: I.book, color: ACC.greenInk, bg: ACC.greenWash, title: "Materi Terkurasi", body: "50+ modul disusun praktisi industri dengan 8+ tahun pengalaman." },
+    { icon: I.users, color: ACC.blue, bg: ACC.blueWash, title: "Komunitas Aktif", body: "Grup WA eksklusif untuk diskusi, tanya jawab, dan networking." },
+    { icon: I.clock, color: ACC.orange, bg: ACC.orangeWash, title: "Akses Selamanya", body: "Beli sekali, akses seumur hidup. Belajar kapan aja, di mana aja." },
+    { icon: I.trophy, color: ACC.greenInk, bg: ACC.greenWash, title: "Studi Kasus Nyata", body: "Kerjain project real dari industri, bukan cuma teori." },
+  ];
+
+  const scrollToCourses = () => document.getElementById("courses-section")?.scrollIntoView({ behavior: "smooth" });
+
   return <>
+    {/* ═══ HERO ═══ */}
     <section style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "120px 24px 80px", textAlign: "center", position: "relative", overflow: "hidden", background: C.pastelHero }}>
-      <div style={{ position: "absolute", top: "10%", left: "8%", width: 80, height: 80, borderRadius: 20, background: "linear-gradient(135deg,#F5C4A0,#F0A580)", boxShadow: "0 20px 40px rgba(245,165,128,0.3), inset 4px 4px 12px rgba(255,255,255,0.4)", transform: "rotate(-12deg)", opacity: 0.7 }} />
-      <div style={{ position: "absolute", bottom: "15%", right: "10%", width: 90, height: 90, borderRadius: "50%", background: "linear-gradient(135deg,#F5D4B5,#EBB78F)", boxShadow: "0 20px 40px rgba(235,183,143,0.3), inset 4px 4px 12px rgba(255,255,255,0.5)", opacity: 0.7 }} />
-      <div style={{ position: "absolute", top: "15%", right: "18%", width: 50, height: 50, borderRadius: 14, background: "linear-gradient(135deg,#F5D4B5,#ECB994)", boxShadow: "0 12px 28px rgba(235,183,143,0.25)", transform: "rotate(20deg)", opacity: 0.65 }} />
-      <Badge>Upgrade Skill Tanpa Ribet, Karir Makin Canggih</Badge>
-      <h1 style={{ fontFamily: F.head, fontSize: "clamp(32px,6vw,64px)", fontWeight: 800, color: C.text, lineHeight: 1.05, letterSpacing: "-0.04em", maxWidth: 700, margin: "28px 0 20px" }}>
-        Belajar Data Skills<br/>dari <Hl>Expert</Hl>-nya.
-      </h1>
-      <p style={{ fontFamily: F.body, fontSize: 17, color: C.muted, maxWidth: 500, margin: "0 0 36px", lineHeight: 1.65 }}>
-        Excel, Google Sheets, Power BI, Looker Studio & Tableau. Semua yang kamu butuhkan untuk karir di dunia data.
-      </p>
-      <div style={{ display: "flex", gap: 14 }}>
-        <Btn primary onClick={() => go("catalog")}>Daftar Sekarang {I.arrow}</Btn>
-        <Btn onClick={() => go("catalog")}>{I.play} Lihat Course</Btn>
-      </div>
-      <div style={{ display: "flex", gap: 56, marginTop: 72, flexWrap: "wrap", justifyContent: "center" }}>
-        {[["25,300+","Students"],["4.9","Avg Rating"],["200+","Video Lessons"],[String(courses.length),"Tools"]].map(([v,l],i) => (
-          <div key={i} style={{ textAlign: "center" }}>
-            <div style={{ fontFamily: F.head, fontSize: 30, fontWeight: 800, color: C.text, letterSpacing: "-0.03em" }}>{v}</div>
-            <div style={{ fontFamily: F.body, fontSize: 12, color: C.dim, marginTop: 4 }}>{l}</div>
-          </div>
-        ))}
+      {/* 4 floating 3D pastel cubes — matches Landing hero aesthetic */}
+      <div style={{ position: "absolute", top: "11%", left: "7%", width: 92, height: 92, borderRadius: 18, background: "linear-gradient(135deg,#F5C4A0,#E89968)", boxShadow: "0 24px 48px rgba(232,153,104,0.35), inset 0 2px 0 rgba(255,255,255,0.4)", transform: "rotate(-15deg)", opacity: 0.88, zIndex: 0 }} />
+      <div style={{ position: "absolute", top: "14%", right: "11%", width: 64, height: 64, borderRadius: 14, background: "linear-gradient(135deg,#FFE0C7,#F4B487)", boxShadow: "0 18px 36px rgba(244,180,135,0.35), inset 0 2px 0 rgba(255,255,255,0.4)", transform: "rotate(20deg)", opacity: 0.82, zIndex: 0 }} />
+      <div style={{ position: "absolute", bottom: "18%", right: "8%", width: 78, height: 78, borderRadius: 18, background: "linear-gradient(135deg,#FFE8D4,#F5C4A0)", boxShadow: "0 22px 40px rgba(245,196,160,0.35), inset 0 2px 0 rgba(255,255,255,0.4)", transform: "rotate(-8deg)", opacity: 0.85, zIndex: 0 }} />
+      <div style={{ position: "absolute", bottom: "22%", left: "10%", width: 62, height: 62, borderRadius: "50%", background: "linear-gradient(135deg,#FFE8D4,#F5C4A0)", boxShadow: "0 16px 32px rgba(245,196,160,0.3)", opacity: 0.78, zIndex: 0 }} />
+
+      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <Badge>Upgrade Skill Tanpa Ribet, Karir Makin Canggih</Badge>
+        <h1 style={{ fontFamily: F.head, fontSize: "clamp(36px,6.2vw,64px)", fontWeight: 800, color: S.ink, lineHeight: 1.08, letterSpacing: "-0.035em", maxWidth: 820, margin: "28px 0 20px" }}>
+          Belajar Data Skills<br/>dari <Hl>Expert</Hl>-nya.
+        </h1>
+        <p style={{ fontFamily: F.body, fontSize: "clamp(15px,1.6vw,19px)", color: S.inkSoft, maxWidth: 620, margin: "0 0 36px", lineHeight: 1.6 }}>
+          Excel, Google Sheets, Power BI, Looker Studio & Tableau. Semua yang kamu butuhkan untuk karir di dunia data.
+        </p>
+
+        {/* Pill CTAs — Figma shape, KERJA.ID neon accent */}
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+          <button onClick={() => go("catalog")} style={{ background: C.accent, color: C.onAccent, border: "none", padding: "18px 40px", borderRadius: 100, fontFamily: F.head, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, boxShadow: "0 10px 28px rgba(200,255,0,0.4)" }}>
+            Daftar Sekarang {I.arrow}
+          </button>
+          <button onClick={scrollToCourses} style={{ background: "#FFFFFF", color: S.ink, border: `1.5px solid ${S.ink}`, padding: "16px 38px", borderRadius: 100, fontFamily: F.head, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}>
+            {I.play} Lihat Course
+          </button>
+        </div>
+
+        {/* Stats strip */}
+        <div style={{ display: "flex", gap: 56, marginTop: 72, flexWrap: "wrap", justifyContent: "center" }}>
+          {[["25,300+","Students"],["4.9","Avg Rating"],["200+","Video Lessons"],[String(courses.length),"Tools"]].map(([v,l],i) => (
+            <div key={i} style={{ textAlign: "center" }}>
+              <div style={{ fontFamily: F.head, fontSize: 32, fontWeight: 800, color: S.ink, letterSpacing: "-0.03em" }}>{v}</div>
+              <div style={{ fontFamily: F.body, fontSize: 12, color: S.muted, marginTop: 4 }}>{l}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
+
+    {/* ═══ PARTNERS strip ═══ */}
     <Sec style={{ paddingTop: 0, paddingBottom: 40 }}>
       <p style={{ textAlign: "center", fontFamily: F.body, fontSize: 13, color: C.dim, marginBottom: 24 }}>Mentor berpengalaman yang bekerja sama dengan perusahaan besar</p>
       <div style={{ display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap", opacity: 0.45 }}>
         {PARTNERS.map(p => <span key={p} style={{ fontFamily: F.head, fontSize: 15, fontWeight: 600, color: C.muted }}>{p}</span>)}
       </div>
     </Sec>
-    <Sec>
-      <STitle sup="Courses" title="Pilih Skill yang Mau Kamu Kuasai" sub="Setiap course dibuat oleh praktisi berpengalaman 8+ tahun di industri." />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 18 }}>
-        {courses.map(c => (
-          <div key={c.id} onClick={() => go("landing", { courseId: c.id })} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 22, cursor: "pointer", transition: "all 0.25s" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: `${c.color}12`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>{c.icon}</div>
-              <div>
-                <div style={{ fontFamily: F.head, fontSize: 15, fontWeight: 600, color: C.text }}>{c.title}</div>
-                <div style={{ fontFamily: F.body, fontSize: 12, color: C.muted }}>{c.desc}</div>
+
+    {/* ═══ KENAPA BELAJAR DI KERJA.ID? — 4 feature cards ═══ */}
+    <section style={{ background: "linear-gradient(180deg,#F1F5F9 0%,#E2E8F0 100%)", padding: "90px 24px" }}>
+      <div style={{ maxWidth: 1246, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <h2 style={{ fontFamily: F.head, fontSize: "clamp(30px,4vw,48px)", fontWeight: 800, color: S.ink, letterSpacing: "-0.03em", lineHeight: 1.2, margin: "0 0 12px" }}>
+            Kenapa Belajar di KERJA.ID?
+          </h2>
+          <p style={{ fontFamily: F.body, fontSize: "clamp(14px,1.4vw,18px)", color: S.inkSoft, lineHeight: 1.5, maxWidth: 760, margin: "0 auto" }}>
+            Bukan platform kursus biasa. Kami fokus bikin kamu benar-benar siap pakai skill baru di dunia kerja.
+          </p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 20 }}>
+          {whyCards.map((card, i) => (
+            <div key={i} style={{ background: "#FFFFFF", border: `1px solid ${S.line}`, borderRadius: 24, padding: "30px 20px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 64, height: 64, borderRadius: "50%", background: card.bg, color: card.color, display: "flex", alignItems: "center", justifyContent: "center", transform: "scale(1.3)" }}>
+                {card.icon}
+              </div>
+              <h3 style={{ fontFamily: F.head, fontSize: 18, fontWeight: 600, color: S.ink, lineHeight: 1.3, margin: "6px 0 0" }}>{card.title}</h3>
+              <p style={{ fontFamily: F.body, fontSize: 14, color: S.body, lineHeight: 1.5, margin: 0 }}>{card.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* ═══ PILIH SKILL — Course grid with slate-styled cards ═══ */}
+    <section id="courses-section" style={{ background: "#FFFFFF", padding: "90px 24px", scrollMarginTop: 80 }}>
+      <div style={{ maxWidth: 1246, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <div style={{ display: "inline-block", fontFamily: F.mono, fontSize: 12, color: ACC.greenInk, background: ACC.greenWash, padding: "6px 14px", borderRadius: 100, marginBottom: 16, letterSpacing: "0.05em", fontWeight: 600 }}>COURSES</div>
+          <h2 style={{ fontFamily: F.head, fontSize: "clamp(28px,3.5vw,44px)", fontWeight: 800, color: S.ink, letterSpacing: "-0.03em", lineHeight: 1.2, margin: "0 0 12px" }}>
+            Pilih Skill yang Mau Kamu Kuasai
+          </h2>
+          <p style={{ fontFamily: F.body, fontSize: "clamp(14px,1.4vw,18px)", color: S.body, lineHeight: 1.5, maxWidth: 680, margin: "0 auto" }}>
+            Setiap course dibuat oleh praktisi berpengalaman 8+ tahun di industri.
+          </p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 20 }}>
+          {courses.map(c => (
+            <div key={c.id} onClick={() => go("landing", { courseId: c.id })} style={{ background: "#FFFFFF", border: `1px solid ${S.line}`, borderRadius: 20, padding: 24, cursor: "pointer", transition: "transform 0.25s, box-shadow 0.25s" }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 16px 32px rgba(15,23,42,0.1)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+                <div style={{ width: 52, height: 52, borderRadius: 14, background: `${c.color}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, flexShrink: 0 }}>{c.icon}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: F.head, fontSize: 17, fontWeight: 700, color: S.ink, letterSpacing: "-0.01em", lineHeight: 1.25 }}>{c.title}</div>
+                  <div style={{ fontFamily: F.body, fontSize: 13, color: S.body, marginTop: 2 }}>{c.desc}</div>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
+                <span style={{ fontFamily: F.mono, fontSize: 11, color: S.muted, background: S.wash, border: `1px solid ${S.line}`, padding: "4px 10px", borderRadius: 100 }}>{c.modules} modul</span>
+                <span style={{ fontFamily: F.mono, fontSize: 11, color: S.muted, background: S.wash, border: `1px solid ${S.line}`, padding: "4px 10px", borderRadius: 100 }}>{c.hours} jam</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: `1px solid ${S.line}`, paddingTop: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 3, color: ACC.orange, fontSize: 12, fontWeight: 600 }}>{I.star} {c.rating}</span>
+                  <span style={{ fontSize: 11, color: S.muted }}>{c.students.toLocaleString()} students</span>
+                </div>
+                <span style={{ fontFamily: F.head, fontSize: 15, fontWeight: 800, color: C.onAccent, background: C.accent, padding: "4px 12px", borderRadius: 100 }}>{rp(c.price)}</span>
               </div>
             </div>
-            <div style={{ display: "flex", gap: 6, marginBottom: 14 }}><Badge>{c.modules} modul</Badge><Badge>{c.hours} jam</Badge></div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ display: "flex", alignItems: "center", gap: 3, color: C.orange, fontSize: 12 }}>{I.star} {c.rating}</span>
-                <span style={{ fontSize: 11, color: C.dim }}>{c.students.toLocaleString()} students</span>
-              </div>
-              <span style={{ fontFamily: F.head, fontSize: 15, fontWeight: 800, color: C.text, background: C.accentBg, padding: "3px 10px", borderRadius: 8 }}>{rp(c.price)}</span>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* ═══ TESTIMONIALS — restyled with slate palette ═══ */}
+    <section style={{ background: S.wash, padding: "90px 24px" }}>
+      <div style={{ maxWidth: 1246, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <div style={{ display: "inline-block", fontFamily: F.mono, fontSize: 12, color: ACC.blue, background: ACC.blueWash, padding: "6px 14px", borderRadius: 100, marginBottom: 16, letterSpacing: "0.05em", fontWeight: 600 }}>TESTIMONIALS</div>
+          <h2 style={{ fontFamily: F.head, fontSize: "clamp(28px,3.5vw,44px)", fontWeight: 800, color: S.ink, letterSpacing: "-0.03em", lineHeight: 1.2, margin: 0 }}>
+            Kata Mereka Yang Udah Join
+          </h2>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 20 }}>
+          {TESTIMONIALS.map((t,i) => (
+            <div key={i} style={{ background: "#FFFFFF", border: `1px solid ${S.line}`, borderRadius: 20, padding: 28 }}>
+              <div style={{ display: "flex", gap: 3, marginBottom: 14, color: ACC.orange }}>{[1,2,3,4,5].map(j => <span key={j}>{I.star}</span>)}</div>
+              <p style={{ fontFamily: F.body, fontSize: 15, color: S.inkSoft, margin: "0 0 20px", lineHeight: 1.6 }}>"{t.text}"</p>
+              <div style={{ fontFamily: F.head, fontSize: 14, fontWeight: 700, color: S.ink }}>{t.name}</div>
+              <div style={{ fontFamily: F.body, fontSize: 12, color: S.muted, marginTop: 2 }}>{t.role}</div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </Sec>
-    <Sec>
-      <STitle sup="Testimonials" title="Kata Mereka Yang Udah Join" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
-        {TESTIMONIALS.map((t,i) => (
-          <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 24 }}>
-            <div style={{ display: "flex", gap: 2, marginBottom: 12, color: C.orange }}>{[1,2,3,4,5].map(j => <span key={j}>{I.star}</span>)}</div>
-            <p style={{ fontFamily: F.body, fontSize: 14, color: C.muted, margin: "0 0 16px", lineHeight: 1.65 }}>"{t.text}"</p>
-            <div style={{ fontFamily: F.body, fontSize: 13, fontWeight: 600, color: C.text }}>{t.name}</div>
-            <div style={{ fontFamily: F.body, fontSize: 12, color: C.dim }}>{t.role}</div>
-          </div>
-        ))}
-      </div>
-    </Sec>
+    </section>
+
+    {/* ═══ CTA BAND — dark + neon (KERJA.ID signature) ═══ */}
     <Sec>
       <div style={{ background: C.dark, borderRadius: 28, padding: "56px 40px", textAlign: "center", position: "relative", overflow: "hidden", boxShadow: C.shadowLg }}>
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at top, rgba(200,255,0,0.15), transparent 60%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: -40, right: -40, width: 160, height: 160, borderRadius: "50%", background: C.accent, opacity: 0.15, filter: "blur(40px)" }} />
-        <h2 style={{ fontFamily: F.head, fontSize: 32, fontWeight: 800, color: C.darkText, letterSpacing: "-0.03em", margin: "0 0 12px", position: "relative" }}>Siap upgrade karirmu?</h2>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at top, rgba(200,255,0,0.18), transparent 60%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: -40, right: -40, width: 160, height: 160, borderRadius: "50%", background: C.accent, opacity: 0.18, filter: "blur(50px)" }} />
+        <div style={{ position: "absolute", bottom: -40, left: -40, width: 160, height: 160, borderRadius: "50%", background: C.accent, opacity: 0.12, filter: "blur(50px)" }} />
+        <h2 style={{ fontFamily: F.head, fontSize: "clamp(28px,3.5vw,40px)", fontWeight: 800, color: C.darkText, letterSpacing: "-0.03em", margin: "0 0 12px", position: "relative" }}>Siap upgrade karirmu?</h2>
         <p style={{ fontFamily: F.body, fontSize: 16, color: C.darkMuted, marginBottom: 28, position: "relative" }}>Mulai belajar sekarang dengan diskon hingga 90%.</p>
         <div style={{ position: "relative" }}><Btn accent onClick={() => go("catalog")}>Daftar Sekarang {I.arrow}</Btn></div>
       </div>
