@@ -457,31 +457,112 @@ function Home({ go, courses }) {
 
 /* ════════════════ CATALOG ════════════════ */
 function Catalog({ go, courses }) {
+  const S = { ink: "#0F172A", inkSoft: "#1E293B", body: "#334155", muted: "#64748B", line: "#CBD5E1", wash: "#F8FAFC" };
+  const ACC = { green: "#22C55E", greenInk: "#15803D", greenWash: "#DCFCE7", blue: "#3B82F6", blueWash: "#DBEAFE", orange: "#F97316", orangeWash: "#FFEDD5" };
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState("popular"); // popular | price-asc | price-desc | rating
+
+  const filtered = courses
+    .filter(c => (c.title + " " + c.desc).toLowerCase().includes(query.toLowerCase()))
+    .sort((a, b) => {
+      if (sort === "price-asc") return a.price - b.price;
+      if (sort === "price-desc") return b.price - a.price;
+      if (sort === "rating") return b.rating - a.rating;
+      return b.students - a.students; // popular
+    });
+
+  const sortOptions = [
+    { id: "popular", label: "Terpopuler" },
+    { id: "rating", label: "Rating Tertinggi" },
+    { id: "price-asc", label: "Harga Terendah" },
+    { id: "price-desc", label: "Harga Tertinggi" },
+  ];
+
+  const totalStudents = courses.reduce((sum, c) => sum + c.students, 0);
+
   return <>
-    <div style={{ height: 100, background: C.pastelHero }} />
-    <Sec style={{ paddingTop: 40 }}>
-      <STitle sup="All Courses" title="Pilih Skill yang Mau Kamu Kuasai" sub="Klik course untuk melihat detail & enroll." />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 18 }}>
-        {courses.map(c => (
-          <div key={c.id} onClick={() => go("landing", { courseId: c.id })} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 22, cursor: "pointer", transition: "all 0.25s" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: `${c.color}12`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>{c.icon}</div>
-              <div>
-                <div style={{ fontFamily: F.head, fontSize: 15, fontWeight: 600, color: C.text }}>{c.title}</div>
-                <div style={{ fontFamily: F.body, fontSize: 12, color: C.muted }}>{c.desc}</div>
-              </div>
-            </div>
-            <div style={{ display: "flex", gap: 6, marginBottom: 14 }}><Badge>{c.modules} modul</Badge><Badge>{c.hours} jam</Badge></div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ display: "flex", alignItems: "center", gap: 3, color: C.orange, fontSize: 12 }}>{I.star} {c.rating}</span>
-                <span style={{ fontSize: 11, color: C.dim }}>{c.students.toLocaleString()} students</span>
-              </div>
-              <span style={{ fontFamily: F.head, fontSize: 15, fontWeight: 800, color: C.text, background: C.accentBg, padding: "3px 10px", borderRadius: 8 }}>{rp(c.price)}</span>
-            </div>
-          </div>
-        ))}
+    {/* ── HERO BAND ── */}
+    <div style={{ paddingTop: 120, paddingBottom: 48, background: S.wash, borderBottom: `1px solid ${S.line}` }}>
+      <div style={{ maxWidth: 1140, margin: "0 auto", padding: "0 24px", textAlign: "center" }}>
+        <span style={{ display: "inline-block", fontFamily: F.body, fontSize: 12, fontWeight: 700, color: ACC.greenInk, background: ACC.greenWash, padding: "6px 14px", borderRadius: 100, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 18 }}>All Courses</span>
+        <h1 style={{ fontFamily: F.head, fontSize: 48, fontWeight: 800, color: S.ink, margin: "0 0 14px", letterSpacing: "-0.03em", lineHeight: 1.1 }}>Pilih skill yang mau kamu kuasai</h1>
+        <p style={{ fontFamily: F.body, fontSize: 16, color: S.body, margin: "0 auto", maxWidth: 620, lineHeight: 1.55 }}>Course praktis dari praktisi industri. Klik course untuk lihat detail, silabus, dan mulai belajar.</p>
+        <div style={{ display: "flex", justifyContent: "center", gap: 28, marginTop: 28, flexWrap: "wrap", fontFamily: F.body, fontSize: 13, color: S.muted }}>
+          <span><strong style={{ color: S.ink, fontFamily: F.head, fontSize: 16 }}>{courses.length}</strong> course aktif</span>
+          <span style={{ color: S.line }}>·</span>
+          <span><strong style={{ color: S.ink, fontFamily: F.head, fontSize: 16 }}>{totalStudents.toLocaleString("id-ID")}+</strong> siswa</span>
+          <span style={{ color: S.line }}>·</span>
+          <span><strong style={{ color: S.ink, fontFamily: F.head, fontSize: 16 }}>4.8</strong>/5 rata-rata rating</span>
+        </div>
       </div>
+    </div>
+
+    {/* ── CONTROLS ── */}
+    <Sec style={{ paddingTop: 40, paddingBottom: 20 }}>
+      <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap", marginBottom: 28 }}>
+        <div style={{ flex: "1 1 280px", position: "relative" }}>
+          <div style={{ position: "absolute", left: 18, top: "50%", transform: "translateY(-50%)", color: S.muted }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          </div>
+          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Cari course…" style={{ width: "100%", padding: "14px 18px 14px 44px", borderRadius: 100, border: `1px solid ${S.line}`, background: "#FFFFFF", fontFamily: F.body, fontSize: 14, color: S.ink, outline: "none", boxSizing: "border-box" }} />
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {sortOptions.map(opt => (
+            <button key={opt.id} onClick={() => setSort(opt.id)} style={{
+              padding: "10px 18px", borderRadius: 100,
+              border: `1px solid ${sort === opt.id ? S.ink : S.line}`,
+              background: sort === opt.id ? S.ink : "#FFFFFF",
+              color: sort === opt.id ? "#FFFFFF" : S.body,
+              fontFamily: F.body, fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.15s",
+            }}>{opt.label}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── GRID ── */}
+      {filtered.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "60px 20px", color: S.muted, fontFamily: F.body }}>
+          Tidak ada course yang cocok dengan "<strong style={{ color: S.ink }}>{query}</strong>".
+        </div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 20, paddingBottom: 40 }}>
+          {filtered.map((c, i) => {
+            const accentSet = [ACC.green, ACC.blue, ACC.orange][i % 3];
+            const accentWash = [ACC.greenWash, ACC.blueWash, ACC.orangeWash][i % 3];
+            const discount = c.oldPrice ? Math.round(((c.oldPrice - c.price) / c.oldPrice) * 100) : 0;
+            return (
+              <div key={c.id} onClick={() => go("landing", { courseId: c.id })} style={{
+                background: "#FFFFFF", border: `1px solid ${S.line}`, borderRadius: 24, padding: 24,
+                cursor: "pointer", transition: "all 0.25s", display: "flex", flexDirection: "column", gap: 16,
+                position: "relative", overflow: "hidden",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = S.ink; e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 20px 40px rgba(15,23,42,0.08)"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = S.line; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
+                {discount > 0 && (
+                  <div style={{ position: "absolute", top: 18, right: 18, background: C.accent, color: C.onAccent, padding: "5px 12px", borderRadius: 100, fontFamily: F.head, fontSize: 11, fontWeight: 800, letterSpacing: "0.04em" }}>-{discount}%</div>
+                )}
+                <div style={{ width: 64, height: 64, borderRadius: 20, background: accentWash, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32 }}>{c.icon}</div>
+                <div>
+                  <h3 style={{ fontFamily: F.head, fontSize: 18, fontWeight: 700, color: S.ink, margin: "0 0 6px", letterSpacing: "-0.01em" }}>{c.title}</h3>
+                  <p style={{ fontFamily: F.body, fontSize: 13, color: S.muted, margin: 0, lineHeight: 1.5 }}>{c.desc}</p>
+                </div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  <span style={{ fontFamily: F.body, fontSize: 11, fontWeight: 600, color: S.body, background: S.wash, border: `1px solid ${S.line}`, padding: "4px 10px", borderRadius: 100 }}>{c.modules} modul</span>
+                  <span style={{ fontFamily: F.body, fontSize: 11, fontWeight: 600, color: S.body, background: S.wash, border: `1px solid ${S.line}`, padding: "4px 10px", borderRadius: 100 }}>{c.hours} jam</span>
+                  <span style={{ fontFamily: F.body, fontSize: 11, fontWeight: 600, color: accentSet, background: accentWash, padding: "4px 10px", borderRadius: 100, display: "inline-flex", alignItems: "center", gap: 3 }}>{I.star} {c.rating}</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: `1px solid ${S.line}`, paddingTop: 16, marginTop: "auto" }}>
+                  <div style={{ fontFamily: F.body, fontSize: 11, color: S.muted }}>{c.students.toLocaleString("id-ID")} siswa</div>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                    {c.oldPrice && <span style={{ fontFamily: F.body, fontSize: 11, color: S.muted, textDecoration: "line-through" }}>{rp(c.oldPrice)}</span>}
+                    <span style={{ fontFamily: F.head, fontSize: 16, fontWeight: 800, color: C.onAccent, background: C.accent, padding: "4px 12px", borderRadius: 100, letterSpacing: "-0.01em" }}>{rp(c.price)}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </Sec>
   </>;
 }
@@ -797,92 +878,135 @@ function Checkout({ go, course, user, settings, onPaid }) {
 
   const gwLabel = { lynk: "Lynk.id", midtrans: `Midtrans (${settings.midtransMode})`, xendit: "Xendit", mock: "Mock Gateway" }[settings.gateway];
 
+  const S = { ink: "#0F172A", inkSoft: "#1E293B", body: "#334155", muted: "#64748B", line: "#CBD5E1", wash: "#F8FAFC" };
+  const ACC = { green: "#22C55E", greenInk: "#15803D", greenWash: "#DCFCE7", blue: "#3B82F6", blueWash: "#DBEAFE", orange: "#F97316", orangeWash: "#FFEDD5" };
+
+  // group methods by badge
+  const groups = methods.reduce((g, m) => { (g[m.badge] ||= []).push(m); return g; }, {});
+  const groupOrder = ["VA", "QRIS", "E-WALLET", "RETAIL", "CARD"];
+  const groupLabels = { VA: "Virtual Account", QRIS: "QRIS", "E-WALLET": "E-Wallet", RETAIL: "Retail / Minimarket", CARD: "Kartu Kredit / Debit" };
+
   return (
-    <div style={{ minHeight: "100vh", paddingTop: 100, background: C.bg2, paddingBottom: 60 }}>
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: "20px" }}>
-        <div style={{ marginBottom: 20 }}>
-          <button onClick={() => go("landing", { courseId: course.id })} style={{ background: "none", border: "none", padding: 0, color: C.muted, fontFamily: F.body, fontSize: 13, cursor: "pointer" }}>← Kembali ke course</button>
+    <div style={{ minHeight: "100vh", paddingTop: 100, background: S.wash, paddingBottom: 80 }}>
+      <div style={{ maxWidth: 980, margin: "0 auto", padding: "20px" }}>
+        <div style={{ marginBottom: 24 }}>
+          <button onClick={() => go("landing", { courseId: course.id })} style={{ background: "#FFFFFF", border: `1px solid ${S.line}`, padding: "8px 16px", borderRadius: 100, color: S.body, fontFamily: F.body, fontSize: 13, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Kembali ke course
+          </button>
         </div>
 
         {stage === "paid" ? (
-          <div style={{ background: C.card, borderRadius: 20, padding: 48, textAlign: "center", maxWidth: 520, margin: "40px auto", boxShadow: C.shadowLg, border: `1px solid ${C.border}` }}>
-            <div style={{ width: 72, height: 72, borderRadius: "50%", background: C.accent, color: C.onAccent, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", boxShadow: "0 8px 32px rgba(200,255,0,0.4)" }}>
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <div style={{ background: "#FFFFFF", borderRadius: 28, padding: 56, textAlign: "center", maxWidth: 560, margin: "40px auto", border: `1px solid ${S.line}`, boxShadow: "0 30px 60px rgba(15,23,42,0.08)" }}>
+            <div style={{ width: 80, height: 80, borderRadius: "50%", background: ACC.greenWash, color: ACC.greenInk, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 22px" }}>
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            <h2 style={{ fontFamily: F.head, fontSize: 28, fontWeight: 800, color: C.text, margin: "0 0 8px", letterSpacing: "-0.02em" }}>Pembayaran Berhasil!</h2>
-            <p style={{ fontFamily: F.body, fontSize: 14, color: C.muted, margin: "0 0 24px" }}>Kamu sudah terdaftar di <strong style={{ color: C.text }}>{course.title}</strong>.</p>
-            <div style={{ background: C.bg3, borderRadius: 12, padding: 16, marginBottom: 20, fontFamily: F.mono, fontSize: 12, color: C.muted, textAlign: "left" }}>
-              <div>Order ID: <strong style={{ color: C.text }}>{uid().toUpperCase()}</strong></div>
-              <div>Amount: <strong style={{ color: C.text }}>{rp(course.price)}</strong></div>
-              <div>Method: <strong style={{ color: C.text }}>{methods.find(m => m.id === method)?.label}</strong></div>
-              <div>Gateway: <strong style={{ color: C.text }}>{gwLabel}</strong></div>
+            <span style={{ display: "inline-block", fontFamily: F.body, fontSize: 11, fontWeight: 700, color: ACC.greenInk, background: ACC.greenWash, padding: "4px 12px", borderRadius: 100, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 14 }}>Success</span>
+            <h2 style={{ fontFamily: F.head, fontSize: 30, fontWeight: 800, color: S.ink, margin: "0 0 10px", letterSpacing: "-0.02em" }}>Pembayaran berhasil!</h2>
+            <p style={{ fontFamily: F.body, fontSize: 15, color: S.body, margin: "0 0 28px", lineHeight: 1.55 }}>Kamu sudah terdaftar di <strong style={{ color: S.ink }}>{course.title}</strong>. Akses selamanya siap dipakai.</p>
+            <div style={{ background: S.wash, border: `1px solid ${S.line}`, borderRadius: 16, padding: 18, marginBottom: 22, fontFamily: F.mono, fontSize: 12, color: S.muted, textAlign: "left", display: "grid", gap: 6 }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}><span>Order ID</span><strong style={{ color: S.ink }}>{uid().toUpperCase()}</strong></div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}><span>Amount</span><strong style={{ color: S.ink }}>{rp(course.price)}</strong></div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}><span>Method</span><strong style={{ color: S.ink }}>{methods.find(m => m.id === method)?.label}</strong></div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}><span>Gateway</span><strong style={{ color: S.ink }}>{gwLabel}</strong></div>
             </div>
-            <Btn accent onClick={complete} style={{ width: "100%", justifyContent: "center" }}>Mulai Belajar {I.arrow}</Btn>
+            <button onClick={complete} style={{ width: "100%", background: C.accent, color: C.onAccent, border: "none", padding: "18px 28px", borderRadius: 100, fontFamily: F.head, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "0 10px 28px rgba(200,255,0,0.4)" }}>
+              Mulai Belajar {I.arrow}
+            </button>
           </div>
         ) : stage === "processing" ? (
-          <div style={{ background: C.card, borderRadius: 20, padding: 48, textAlign: "center", maxWidth: 520, margin: "40px auto", boxShadow: C.shadowLg, border: `1px solid ${C.border}` }}>
-            <div style={{ width: 72, height: 72, borderRadius: "50%", background: C.accentBg, border: `3px solid ${C.accent}`, borderTopColor: "transparent", margin: "0 auto 20px", animation: "spin 0.8s linear infinite" }} />
-            <h2 style={{ fontFamily: F.head, fontSize: 22, fontWeight: 700, color: C.text, margin: "0 0 8px", letterSpacing: "-0.02em" }}>Memproses pembayaran...</h2>
-            <p style={{ fontFamily: F.body, fontSize: 13, color: C.muted, margin: 0 }}>Mohon tunggu {countdown}s · via {gwLabel}</p>
+          <div style={{ background: "#FFFFFF", borderRadius: 28, padding: 56, textAlign: "center", maxWidth: 520, margin: "40px auto", border: `1px solid ${S.line}`, boxShadow: "0 30px 60px rgba(15,23,42,0.08)" }}>
+            <div style={{ width: 80, height: 80, borderRadius: "50%", background: "transparent", border: `4px solid ${S.line}`, borderTopColor: S.ink, margin: "0 auto 22px", animation: "spin 0.9s linear infinite" }} />
+            <h2 style={{ fontFamily: F.head, fontSize: 24, fontWeight: 800, color: S.ink, margin: "0 0 10px", letterSpacing: "-0.02em" }}>Memproses pembayaran…</h2>
+            <p style={{ fontFamily: F.body, fontSize: 14, color: S.body, margin: 0 }}>Mohon tunggu <strong style={{ color: S.ink }}>{countdown}s</strong> · via {gwLabel}</p>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 28 }}>
             <div>
-              <h1 style={{ fontFamily: F.head, fontSize: 28, fontWeight: 700, color: C.text, margin: "0 0 6px", letterSpacing: "-0.02em" }}>Checkout</h1>
-              <p style={{ fontFamily: F.body, fontSize: 13, color: C.muted, marginBottom: 20 }}>Pilih metode pembayaran pilihan kamu.</p>
+              <span style={{ display: "inline-block", fontFamily: F.body, fontSize: 11, fontWeight: 700, color: ACC.greenInk, background: ACC.greenWash, padding: "4px 12px", borderRadius: 100, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>Checkout</span>
+              <h1 style={{ fontFamily: F.head, fontSize: 34, fontWeight: 800, color: S.ink, margin: "0 0 8px", letterSpacing: "-0.03em" }}>Selangkah lagi, {user?.email?.split("@")[0] || "kamu"}!</h1>
+              <p style={{ fontFamily: F.body, fontSize: 14, color: S.body, marginBottom: 24, lineHeight: 1.55 }}>Pilih metode pembayaran pilihan kamu. Semua transaksi diproses secara aman.</p>
 
-              <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 16 }}>
-                <div style={{ fontFamily: F.head, fontSize: 14, fontWeight: 600, color: C.text, marginBottom: 12 }}>Metode Pembayaran</div>
-                <div style={{ display: "grid", gap: 8 }}>
-                  {methods.length === 0 && (
-                    <div style={{ padding: 20, textAlign: "center", color: C.muted, fontFamily: F.body, fontSize: 13 }}>
-                      Belum ada metode pembayaran aktif. Admin perlu mengaktifkan di Settings.
+              <div style={{ background: "#FFFFFF", border: `1px solid ${S.line}`, borderRadius: 24, padding: 24, marginBottom: 16 }}>
+                {methods.length === 0 ? (
+                  <div style={{ padding: 32, textAlign: "center", color: S.muted, fontFamily: F.body, fontSize: 14 }}>
+                    Belum ada metode pembayaran aktif. Admin perlu mengaktifkan di Settings.
+                  </div>
+                ) : groupOrder.filter(g => groups[g]).map(g => (
+                  <div key={g} style={{ marginBottom: 18 }}>
+                    <div style={{ fontFamily: F.body, fontSize: 11, fontWeight: 700, color: S.muted, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>{groupLabels[g]}</div>
+                    <div style={{ display: "grid", gap: 8 }}>
+                      {groups[g].map(m => {
+                        const selected = method === m.id;
+                        return (
+                          <label key={m.id} onClick={() => setMethod(m.id)} style={{
+                            display: "flex", alignItems: "center", gap: 14, padding: "14px 16px",
+                            borderRadius: 16,
+                            border: `1px solid ${selected ? S.ink : S.line}`,
+                            background: selected ? S.wash : "#FFFFFF",
+                            cursor: "pointer", transition: "all 0.15s",
+                          }}>
+                            <div style={{ width: 20, height: 20, borderRadius: "50%", border: `2px solid ${selected ? S.ink : S.line}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              {selected && <div style={{ width: 10, height: 10, borderRadius: "50%", background: S.ink }} />}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontFamily: F.head, fontSize: 14, fontWeight: 700, color: S.ink }}>{m.label}</div>
+                              <div style={{ fontFamily: F.body, fontSize: 12, color: S.muted }}>{m.sub}</div>
+                            </div>
+                          </label>
+                        );
+                      })}
                     </div>
-                  )}
-                  {methods.map(m => (
-                    <label key={m.id} onClick={() => setMethod(m.id)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 10, border: `1px solid ${method === m.id ? C.accent : C.border}`, background: method === m.id ? C.accentBg : C.bg2, cursor: "pointer", transition: "all 0.15s" }}>
-                      <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${method === m.id ? C.accent : C.border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        {method === m.id && <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.accent }} />}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontFamily: F.body, fontSize: 13, fontWeight: 600, color: C.text }}>{m.label}</div>
-                        <div style={{ fontFamily: F.body, fontSize: 11, color: C.muted }}>{m.sub}</div>
-                      </div>
-                      <span style={{ fontFamily: F.mono, fontSize: 9, padding: "3px 8px", borderRadius: 4, background: C.bg4, color: C.muted, fontWeight: 700 }}>{m.badge}</span>
-                    </label>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
 
-              <div style={{ background: C.bg3, borderRadius: 12, padding: 14, fontFamily: F.mono, fontSize: 11, color: C.muted, display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.green }} /> Gateway aktif: <strong style={{ color: C.text }}>{gwLabel}</strong>
-                {settings.gateway === "mock" && <span style={{ color: C.orange }}> — mode demo, tidak ada transaksi nyata.</span>}
+              <div style={{ background: "#FFFFFF", border: `1px solid ${S.line}`, borderRadius: 16, padding: "14px 18px", fontFamily: F.body, fontSize: 12, color: S.body, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: ACC.green, flexShrink: 0 }} />
+                Gateway aktif: <strong style={{ color: S.ink }}>{gwLabel}</strong>
+                {settings.gateway === "mock" && <span style={{ color: ACC.orange, fontWeight: 600 }}> — mode demo, tidak ada transaksi nyata.</span>}
               </div>
             </div>
 
             <div>
-              <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, position: "sticky", top: 90 }}>
-                <div style={{ fontFamily: F.head, fontSize: 13, fontWeight: 700, color: C.dim, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 14 }}>Order Summary</div>
-                <div style={{ display: "flex", gap: 12, marginBottom: 16, paddingBottom: 16, borderBottom: `1px solid ${C.border}` }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 10, background: `${course.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{course.icon}</div>
-                  <div>
-                    <div style={{ fontFamily: F.head, fontSize: 13, fontWeight: 600, color: C.text }}>{course.title}</div>
-                    <div style={{ fontFamily: F.body, fontSize: 11, color: C.muted, marginTop: 2 }}>{course.modules} modul · {course.hours} jam</div>
+              <div style={{ background: "#FFFFFF", border: `1px solid ${S.line}`, borderRadius: 24, padding: 24, position: "sticky", top: 100, boxShadow: "0 20px 40px rgba(15,23,42,0.06)" }}>
+                <div style={{ fontFamily: F.body, fontSize: 11, fontWeight: 700, color: S.muted, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 16 }}>Order Summary</div>
+                <div style={{ display: "flex", gap: 14, marginBottom: 18, paddingBottom: 18, borderBottom: `1px solid ${S.line}` }}>
+                  <div style={{ width: 52, height: 52, borderRadius: 16, background: ACC.greenWash, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, flexShrink: 0 }}>{course.icon}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: F.head, fontSize: 14, fontWeight: 700, color: S.ink, lineHeight: 1.3 }}>{course.title}</div>
+                    <div style={{ fontFamily: F.body, fontSize: 12, color: S.muted, marginTop: 4 }}>{course.modules} modul · {course.hours} jam</div>
                   </div>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontFamily: F.body, fontSize: 13, color: C.muted }}>
-                  <span>Harga normal</span><span style={{ textDecoration: "line-through" }}>{rp(course.oldPrice)}</span>
+                {course.oldPrice && (
+                  <>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, fontFamily: F.body, fontSize: 13, color: S.muted }}>
+                      <span>Harga normal</span><span style={{ textDecoration: "line-through" }}>{rp(course.oldPrice)}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16, fontFamily: F.body, fontSize: 13, color: ACC.greenInk, fontWeight: 700 }}>
+                      <span>Diskon</span><span>-{rp(course.oldPrice - course.price)}</span>
+                    </div>
+                  </>
+                )}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", paddingTop: 16, borderTop: `1px solid ${S.line}`, marginBottom: 20 }}>
+                  <span style={{ fontFamily: F.body, fontSize: 14, fontWeight: 600, color: S.body }}>Total</span>
+                  <span style={{ fontFamily: F.head, fontSize: 26, fontWeight: 800, color: S.ink, letterSpacing: "-0.02em" }}>{rp(course.price)}</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14, fontFamily: F.body, fontSize: 13, color: C.green, fontWeight: 600 }}>
-                  <span>Diskon</span><span>-{rp(course.oldPrice - course.price)}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", paddingTop: 14, borderTop: `1px solid ${C.border}`, marginBottom: 18 }}>
-                  <span style={{ fontFamily: F.body, fontSize: 14, fontWeight: 600, color: C.text }}>Total</span>
-                  <span style={{ fontFamily: F.head, fontSize: 22, fontWeight: 800, color: C.text, letterSpacing: "-0.02em" }}>{rp(course.price)}</span>
-                </div>
-                <Btn primary onClick={pay} disabled={methods.length === 0} style={{ width: "100%", justifyContent: "center" }}>Bayar Sekarang {I.arrow}</Btn>
-                <div style={{ marginTop: 12, fontFamily: F.body, fontSize: 11, color: C.dim, textAlign: "center" }}>
-                  Logged in as <strong>{user.email}</strong>
+                <button onClick={pay} disabled={methods.length === 0} style={{
+                  width: "100%",
+                  background: methods.length === 0 ? S.line : C.accent,
+                  color: methods.length === 0 ? S.muted : C.onAccent,
+                  border: "none", padding: "16px 24px", borderRadius: 100,
+                  fontFamily: F.head, fontSize: 15, fontWeight: 700,
+                  cursor: methods.length === 0 ? "not-allowed" : "pointer",
+                  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  boxShadow: methods.length === 0 ? "none" : "0 10px 28px rgba(200,255,0,0.4)",
+                  transition: "all 0.15s",
+                }}>
+                  Bayar Sekarang {I.arrow}
+                </button>
+                <div style={{ marginTop: 14, fontFamily: F.body, fontSize: 11, color: S.muted, textAlign: "center" }}>
+                  Masuk sebagai <strong style={{ color: S.ink }}>{user.email}</strong>
                 </div>
               </div>
             </div>
@@ -895,43 +1019,98 @@ function Checkout({ go, course, user, settings, onPaid }) {
 
 /* ════════════════ MY LEARNING ════════════════ */
 function MyLearning({ go, user, courses, enrollments }) {
+  const S = { ink: "#0F172A", inkSoft: "#1E293B", body: "#334155", muted: "#64748B", line: "#CBD5E1", wash: "#F8FAFC" };
+  const ACC = { green: "#22C55E", greenInk: "#15803D", greenWash: "#DCFCE7", blue: "#3B82F6", blueWash: "#DBEAFE", orange: "#F97316", orangeWash: "#FFEDD5" };
+
   const myEnrollments = enrollments.filter(e => e.userEmail === user?.email);
+
+  // stats
+  const totalCourses = myEnrollments.length;
+  const totalHours = myEnrollments.reduce((sum, en) => {
+    const c = courses.find(c => c.id === en.courseId); return sum + (c?.hours || 0);
+  }, 0);
+  const completedLessons = myEnrollments.reduce((sum, en) => sum + (en.completedLessons?.length || 0), 0);
+
   return (
-    <div style={{ minHeight: "100vh", paddingTop: 100, paddingBottom: 60 }}>
+    <div style={{ minHeight: "100vh", paddingTop: 100, paddingBottom: 80, background: S.wash }}>
       <div style={{ maxWidth: 1140, margin: "0 auto", padding: "20px" }}>
-        <h1 style={{ fontFamily: F.head, fontSize: 32, fontWeight: 800, color: C.text, letterSpacing: "-0.03em", margin: "20px 0 8px" }}>My Learning</h1>
-        <p style={{ fontFamily: F.body, fontSize: 14, color: C.muted, marginBottom: 32 }}>Course yang sudah kamu beli.</p>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 16, margin: "20px 0 32px" }}>
+          <div>
+            <span style={{ display: "inline-block", fontFamily: F.body, fontSize: 11, fontWeight: 700, color: ACC.greenInk, background: ACC.greenWash, padding: "4px 12px", borderRadius: 100, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>My Learning</span>
+            <h1 style={{ fontFamily: F.head, fontSize: 38, fontWeight: 800, color: S.ink, letterSpacing: "-0.03em", margin: "0 0 6px" }}>Selamat datang kembali, {user?.email?.split("@")[0] || "kamu"}!</h1>
+            <p style={{ fontFamily: F.body, fontSize: 15, color: S.body, margin: 0 }}>Lanjutkan belajar di course yang sudah kamu beli.</p>
+          </div>
+          {totalCourses > 0 && (
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <div style={{ background: "#FFFFFF", border: `1px solid ${S.line}`, borderRadius: 16, padding: "12px 20px", textAlign: "center" }}>
+                <div style={{ fontFamily: F.head, fontSize: 22, fontWeight: 800, color: S.ink, letterSpacing: "-0.02em" }}>{totalCourses}</div>
+                <div style={{ fontFamily: F.body, fontSize: 11, color: S.muted, fontWeight: 600 }}>Course</div>
+              </div>
+              <div style={{ background: "#FFFFFF", border: `1px solid ${S.line}`, borderRadius: 16, padding: "12px 20px", textAlign: "center" }}>
+                <div style={{ fontFamily: F.head, fontSize: 22, fontWeight: 800, color: S.ink, letterSpacing: "-0.02em" }}>{totalHours}j</div>
+                <div style={{ fontFamily: F.body, fontSize: 11, color: S.muted, fontWeight: 600 }}>Total materi</div>
+              </div>
+              <div style={{ background: "#FFFFFF", border: `1px solid ${S.line}`, borderRadius: 16, padding: "12px 20px", textAlign: "center" }}>
+                <div style={{ fontFamily: F.head, fontSize: 22, fontWeight: 800, color: ACC.greenInk, letterSpacing: "-0.02em" }}>{completedLessons}</div>
+                <div style={{ fontFamily: F.body, fontSize: 11, color: S.muted, fontWeight: 600 }}>Lesson selesai</div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {myEnrollments.length === 0 ? (
-          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 20, padding: 48, textAlign: "center", maxWidth: 520, margin: "40px auto" }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>📚</div>
-            <h3 style={{ fontFamily: F.head, fontSize: 20, fontWeight: 700, color: C.text, margin: "0 0 8px" }}>Belum ada course</h3>
-            <p style={{ fontFamily: F.body, fontSize: 14, color: C.muted, margin: "0 0 20px" }}>Pilih course untuk mulai belajar.</p>
-            <Btn primary onClick={() => go("catalog")}>Lihat Katalog {I.arrow}</Btn>
+          <div style={{ background: "#FFFFFF", border: `1px solid ${S.line}`, borderRadius: 28, padding: 64, textAlign: "center", maxWidth: 560, margin: "40px auto" }}>
+            <div style={{ width: 80, height: 80, borderRadius: "50%", background: ACC.blueWash, color: ACC.blue, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px", transform: "scale(1.4)" }}>{I.book}</div>
+            <h3 style={{ fontFamily: F.head, fontSize: 22, fontWeight: 800, color: S.ink, margin: "0 0 10px", letterSpacing: "-0.02em" }}>Belum ada course</h3>
+            <p style={{ fontFamily: F.body, fontSize: 14, color: S.body, margin: "0 0 24px", lineHeight: 1.55 }}>Yuk pilih skill yang mau kamu kuasai. Ada {courses.length} course siap kamu mulai.</p>
+            <button onClick={() => go("catalog")} style={{ background: C.accent, color: C.onAccent, border: "none", padding: "14px 28px", borderRadius: 100, fontFamily: F.head, fontSize: 14, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, boxShadow: "0 10px 28px rgba(200,255,0,0.4)" }}>
+              Lihat Katalog {I.arrow}
+            </button>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 18 }}>
-            {myEnrollments.map(en => {
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 20 }}>
+            {myEnrollments.map((en, i) => {
               const course = courses.find(c => c.id === en.courseId);
               if (!course) return null;
               const progress = course.lessons?.length ? Math.round(((en.completedLessons?.length || 0) / course.lessons.length) * 100) : 0;
+              const accentWash = [ACC.greenWash, ACC.blueWash, ACC.orangeWash][i % 3];
+              const isComplete = progress === 100;
               return (
-                <div key={en.id} onClick={() => go("lms", { courseId: course.id })} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 22, cursor: "pointer" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-                    <div style={{ width: 52, height: 52, borderRadius: 14, background: `${course.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>{course.icon}</div>
-                    <div>
-                      <div style={{ fontFamily: F.head, fontSize: 16, fontWeight: 700, color: C.text }}>{course.title}</div>
-                      <div style={{ fontFamily: F.body, fontSize: 12, color: C.muted }}>{course.modules} modul · {course.hours} jam</div>
+                <div key={en.id} onClick={() => go("lms", { courseId: course.id })} style={{
+                  background: "#FFFFFF", border: `1px solid ${S.line}`, borderRadius: 24, padding: 24,
+                  cursor: "pointer", transition: "all 0.25s", display: "flex", flexDirection: "column", gap: 16,
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = S.ink; e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 20px 40px rgba(15,23,42,0.08)"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = S.line; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 18, background: accentWash, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, flexShrink: 0 }}>{course.icon}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: F.head, fontSize: 16, fontWeight: 700, color: S.ink, lineHeight: 1.3 }}>{course.title}</div>
+                      <div style={{ fontFamily: F.body, fontSize: 12, color: S.muted, marginTop: 2 }}>{course.modules} modul · {course.hours} jam</div>
+                    </div>
+                    {isComplete && (
+                      <div style={{ width: 28, height: 28, borderRadius: "50%", background: ACC.greenWash, color: ACC.greenInk, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, alignItems: "baseline" }}>
+                      <span style={{ fontFamily: F.body, fontSize: 11, fontWeight: 600, color: S.muted, letterSpacing: "0.06em", textTransform: "uppercase" }}>Progress</span>
+                      <span style={{ fontFamily: F.head, fontSize: 14, color: isComplete ? ACC.greenInk : S.ink, fontWeight: 800 }}>{progress}%</span>
+                    </div>
+                    <div style={{ height: 8, background: S.wash, border: `1px solid ${S.line}`, borderRadius: 100, overflow: "hidden" }}>
+                      <div style={{ width: `${progress}%`, height: "100%", background: isComplete ? ACC.green : C.accent, borderRadius: 100, transition: "width 0.3s" }} />
                     </div>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontFamily: F.body, fontSize: 11, color: C.muted }}>Progress</span>
-                    <span style={{ fontFamily: F.mono, fontSize: 11, color: C.accentInk, fontWeight: 700 }}>{progress}%</span>
-                  </div>
-                  <div style={{ height: 6, background: C.bg4, borderRadius: 3, marginBottom: 14 }}>
-                    <div style={{ width: `${progress}%`, height: "100%", background: C.accent, borderRadius: 3 }} />
-                  </div>
-                  <Btn accent small onClick={(e) => { e.stopPropagation(); go("lms", { courseId: course.id }); }}>Lanjut Belajar {I.arrow}</Btn>
+                  <button onClick={(e) => { e.stopPropagation(); go("lms", { courseId: course.id }); }} style={{
+                    width: "100%", background: S.ink, color: "#FFFFFF", border: "none",
+                    padding: "12px 20px", borderRadius: 100,
+                    fontFamily: F.head, fontSize: 13, fontWeight: 700, cursor: "pointer",
+                    display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
+                  }}>
+                    {isComplete ? "Review" : "Lanjut Belajar"} {I.arrow}
+                  </button>
                 </div>
               );
             })}
